@@ -74,7 +74,7 @@ rec {
       name
       { } ''
       set +x
-      tar -C ${src} -czf $out ./
+      tar -C ${src} -czf "$out" ./
     '';
 
   # Description: Turns a dependency with a from field of the format
@@ -233,7 +233,7 @@ rec {
   nodeSource = nodejs: runCommand "node-sources-${nodejs.version}"
     { } ''
     tar --no-same-owner --no-same-permissions -xf ${nodejs.src}
-    mv node-* $out
+    mv node-* "$out"
   '';
 
   # Description: Creates shell scripts to provide node_modules to the environment supporting
@@ -316,7 +316,7 @@ rec {
                       (lib.mapAttrsToList
                           (to: from: ''
                               dirname=$(dirname ${to})
-                              mkdir -p $dirname
+                              mkdir -p "$dirname"
                               ln -s ${from} ${to}
                             '')
                           mappings
@@ -332,7 +332,7 @@ rec {
               ${preInstallLinkCommands}
 
               if grep -I -q -r '/bin/' .; then
-                source $TMP/preinstall-env
+                source "$TMP"/preinstall-env
                 patchShebangs .
               fi
             '';
@@ -370,7 +370,7 @@ rec {
         buildPhase = ''
           runHook preBuild
           mkdir -p node_modules/.hooks
-          declare -pf > $TMP/preinstall-env
+          declare -pf > "$TMP/preinstall-env"
           ln -s ${preinstall_node_modules}/node_modules/.hooks/prepare node_modules/.hooks/preinstall
           export HOME=.
           npm install --offline --nodedir=${nodeSource nodejs}
@@ -379,13 +379,13 @@ rec {
           runHook postBuild
         '';
         installPhase = ''
-          mkdir $out
+          mkdir "$out"
 
           if test -d node_modules; then
             if [ $(ls -1 node_modules | wc -l) -gt 0 ] || [ -e node_modules/.bin ]; then
-              mv node_modules $out/
-              if test -d $out/node_modules/.bin; then
-                ln -s $out/node_modules/.bin $out/bin
+              mv node_modules "$out"/
+              if test -d "$out"/node_modules/.bin; then
+                ln -s "$out"/node_modules/.bin "$out"/bin
               fi
             fi
           fi
